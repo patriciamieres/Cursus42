@@ -1,0 +1,132 @@
+_This project has been done as part of the curriculum of 42 by pmieres-._
+
+# Description
+
+The goal of this project is to recreate the `get_next_line` function in C.
+
+`get_next_line` reads from a file descriptor and returns one line at a time, including the newline character (`\n`) if present.
+
+A line is defined as:
+
++ A sequence of characters ending with \n
+
++ Or the end of file (EOF)
+
+The function keeps reading from the file descriptor until a full line is available.
+
+## Project Structure
+The project consists of two source files:
+
+__get_next_line.c__
+
+Contains the core logic of the function:
+
++ get_next_line → Returns the next line from the file descriptor.
+
++ ini_stash → Reads from the file descriptor and stores data until a \n or EOF is found.
+
++ lin → Extracts the line (everything before \n, including it if present).
+
++ rest → Stores the remaining data after the extracted line.
+
++ free_stash → Frees allocated memory safely and returns NULL.
+
+__get_next_line_utils.c__
+
+Contains auxiliary string functions:
+
++ ft_strjoin
+
++ ft_strlen
+
++ ft_strdup
+
++ ft_strchr
+
++ ft_strlcpy
+
+## How It Works
+
+1. The function reads from the file descriptor using read().
+
+2. The read content is stored in a static variable (stash).
+
+3. Reading continues until:
+
+	+ A newline (\n) is found, or 
+	+ End of file is reached.
+
+4. The function extracts:
+
+	+ The current line to return.
+
+	+ The remaining content is stored for the next call.
+
+5. On the next call, the function continues from the saved data.
+
+The use of a static variable allows the function to preserve unread data between calls.
+
+## Memory Management
+
+Memory is dynamically allocated for:
+
++ The read buffer
+
++ The returned line
+
++ The internal stash
+
+All unused memory is freed to prevent leaks.
+
+If an error occurs, the function safely frees allocated memory and returns NULL.
+
+If the file contains multiple lines and you call get_next_line:
+
+1. The function reads from the file descriptor into stash.
+
+2. It stops reading once a \n is found.
+
+3. The first line is extracted and returned.
+
+4. The remaining content after \n is kept inside stash.
+
+That means:
+
++ stash is not freed.
+
++ It stores everything after the first newline.
+
++ On the next call to get_next_line, the function starts using the existing stash content before reading again from the file descriptor.
+
+This ensures:
+
++ he function does not lose already-read data.
+
++ It does not re-read the same content.
+
++ Memory is reused correctly between calls.
+
+When there is no more content to read and no remaining data in stash, it is freed and set to NULL.
+
+## Bonus part
+The bonus version differs from the mandatory part in two key aspects: it uses only one static variable, and it is capable of handling multiple file descriptors at the same time. This means get_next_line can be called alternately on different file descriptors without mixing their content or losing the reading state of each one, keeping independent stored data for every descriptor.
+
+# Instructions
+
+To use get_next_line, you must compile both source files:
+```
+cc -Wall -Wextra -Werror get_next_line.c get_next_line_utils.c your_file.c
+```
+Your file must include:
+```
+#include "get_next_line.h"
+```
+# Resources
+
++ 42 Subject PDF
++ Official documentation of the read() system call, fundamental for understanding how data is retrieved from a file descriptor.
++ Explanation of how file descriptors are created and managed in Unix-like systems.
++ AI was used for clarifying theoretical concepts related to Static variables and Memory allocation strategies.
+
+
+

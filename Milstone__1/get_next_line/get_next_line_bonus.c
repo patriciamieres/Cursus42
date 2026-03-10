@@ -1,18 +1,18 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   get_next_line.c                                    :+:      :+:    :+:   */
+/*   get_next_line_bonus.c                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: pmieres- <pmieres-@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/12 16:06:58 by pmieres-          #+#    #+#             */
-/*   Updated: 2026/02/18 12:05:21 by pmieres-         ###   ########.fr       */
+/*   Updated: 2026/02/18 12:05:05 by pmieres-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "get_next_line.h"
+#include "get_next_line_bonus.h"
 
-static char	*rest(char *stash)
+char	*rest(char *stash)
 {
 	char	*new_stash;
 	char	*nl;
@@ -38,7 +38,7 @@ static char	*rest(char *stash)
 	return (new_stash);
 }
 
-static char	*lin(char *stash)
+char	*lin(char *stash)
 {
 	size_t	i;
 	char	*line;
@@ -101,7 +101,7 @@ static char	*ini_stash(int fd, char *buf, char *stash)
 char	*get_next_line(int fd)
 {
 	char		*buf;
-	static char	*stash;
+	static char	*stash[1024];
 	char		*line;
 
 	line = NULL;
@@ -110,18 +110,18 @@ char	*get_next_line(int fd)
 	buf = malloc(BUFFER_SIZE + 1);
 	if (!buf)
 	{
-		stash = free_stash(stash, NULL);
+		stash[fd] = free_stash(stash[fd], NULL);
 		return (NULL);
 	}
-	stash = ini_stash(fd, buf, stash);
-	if (!stash)
-		return (stash = NULL, NULL);
-	line = lin(stash);
+	stash[fd] = ini_stash(fd, buf, stash[fd]);
+	if (!stash[fd])
+		return (stash[fd] = 0, NULL);
+	line = lin(stash[fd]);
 	if (!line)
 	{
-		stash = free_stash(stash, buf);
+		stash[fd] = free_stash(stash[fd], buf);
 		return (NULL);
 	}
-	stash = rest(stash);
+	stash[fd] = rest(stash[fd]);
 	return (free(buf), line);
 }
